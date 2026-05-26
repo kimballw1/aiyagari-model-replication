@@ -55,7 +55,7 @@ function tauchen(p::AiyagariParams)
             if k == 1 #First column: probability of transitioning to the lowest income state
                 P[j, k] = cdf(Normal(), (e_grid[1] + d/2 - μ) / p.σ) #cdf of upper edge of bin
             elseif k == p.n_e #Last column: probability of transitiing to the highest income state
-                P[j, k] = 1 - cdf(Normal(), (e_grid[end]+ d/2 - μ) / p.σ) #cdf from lower edge of last bin
+                P[j, k] = 1 - cdf(Normal(), (e_grid[end] - d/2 - μ) / p.σ) #cdf from lower edge of last bin
             else # Interior columns: probability of transition to interior income states
                 P[j, k] = cdf(Normal(), (e_grid[k] + d/2 - μ) / p.σ) - #cdf subtracting the upper edge of the bin from the lower edge
                           cdf(Normal(), (e_grid[k] - d/2 - μ) / p.σ)
@@ -66,4 +66,3 @@ function tauchen(p::AiyagariParams)
     return e_grid, P
 
 end 
-
