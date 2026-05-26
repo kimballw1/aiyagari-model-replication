@@ -19,5 +19,6 @@
     n_a::Int = 500 #asset grid points: more = accruate but slower
     n_e::Int = 7 #income states approximating the AR(1)
     m::Int = 3 #Tauchen grid width in std devs (+/- covers ~99.7%)
+    E::Int = 3 #exponent for asset grid spacing: higher = more points near borrowing limit
 end 
   
