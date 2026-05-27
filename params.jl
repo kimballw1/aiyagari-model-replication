@@ -1,8 +1,14 @@
 
 # =============================================================================
-# params.jl — constuct paramters for Aiyagari model
+# params.jl
 # =============================================================================
 
+"""
+AiyagariParams
+
+A struct containing all economic and numerical parameters for the Aiyagari (1994) model.
+Default values are provided, but can be overridden
+"""
 @kwdef struct AiyagariParams
     
     #ECONOMIC PARAMTERS 
@@ -21,4 +27,3 @@
     m::Int = 3 #Tauchen grid width in std devs (+/- covers ~99.7%)
     E::Int = 3 #exponent for asset grid spacing: higher = more points near borrowing limit
 end 
-  
