@@ -1,5 +1,5 @@
 # =============================================================================
-# vfi.jl - Value Function Iteration
+# vfi.jl - Discrete Choice Value Function Iteration
 # =============================================================================
 
 """ 
@@ -41,12 +41,12 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
 
             k_min = 1    # monotonicity: optimal k is non-decreasing in i
 
-            for i in 1:n_a
+            for i in 1:n_a # for each asset level
 
                 best_val = -Inf
                 best_k   = k_min
 
-                for k in k_min:n_a # for each asset level
+                for k in k_min:n_a # for each savings choice (next period asset index)
                     c = coh[i,j] - a_grid[k]
 
                     if c <= 0
