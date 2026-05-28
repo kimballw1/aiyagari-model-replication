@@ -41,7 +41,7 @@ function rouwenhorst(p::AiyagariParams)
     psi = sqrt(p.n_e - 1) * sigma_y
     
     # Generate linearly spaced grid (unconditional mean is 0.0)
-    z = collect(range(-psi, psi, length=p.n_e))
+    e_grid = collect(range(-psi, psi, length=p.n_e))
     
-    return z, P
+    return e_grid, P
 end

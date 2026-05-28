@@ -26,4 +26,11 @@ Default values are provided, but can be overridden
     n_e::Int = 7 #income states approximating the AR(1)
     m::Int = 3 #Tauchen grid width in std devs (+/- covers ~99.7%)
     E::Int = 3 #exponent for asset grid spacing: higher = more points near borrowing limit
+    tol_vfi::Float64 = 1e-6 #tolerance for convergence in value function iteration
+    tol_dist::Float64 = 1e-6 #tolerance for convergence in distribution iteration
+    tol_eq::Float64 = 1e-4 #equillibrium biscection tolerance: how close supply and demand must be to stop iterating
+    max_iter_vfi::Int = 2000 #max iterations for value function iteration
+    max_iter_dist::Int = 5000 #max iterations for distribution iteration
+    howard_every::Int = 20 #how often to perform Howard policy iteration
+    howard_steps::Int = 30 #Howard improvement iterations
 end 
