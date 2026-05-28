@@ -102,7 +102,7 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
         # ---------------------------------------------------------------- #
         err = norm(V_new - V, Inf)
 
-        if iter % 50 == 0
+        if iter % 10 == 0
             println("VFI iter $iter | error = $err")
         end
 
