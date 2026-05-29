@@ -3,6 +3,8 @@
 # =============================================================================
 
 """ 
+solve_distribution
+
 Goal: Given a policy function g_idx and transition matrix P, 
       find the stationary distribution of (asset, income) pairs
 

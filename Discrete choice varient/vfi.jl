@@ -97,9 +97,7 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
             V .= V_new  # sync before convergence check so err reflects Howard improvement, not the full jump from previous VFI iter
         end
 
-        # ---------------------------------------------------------------- #
         #  Convergence check
-        # ---------------------------------------------------------------- #
         err = norm(V_new - V, Inf)
 
         if iter % 10 == 0
@@ -114,9 +112,7 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
         V .= V_new    # update V in-place for next iteration
     end
 
-    # ------------------------------------------------------------------ #
     #  Recover consumption policy after convergence
-    # ------------------------------------------------------------------ #
     c = zeros(n_a, n_e)
     for j in 1:n_e
         for i in 1:n_a
@@ -124,5 +120,5 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
         end
     end
 
-    return V, g_idx, c
+    return V, g_idx, c #Value of each asset-income pair, 
 end
