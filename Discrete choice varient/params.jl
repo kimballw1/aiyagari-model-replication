@@ -22,7 +22,7 @@ Default values are provided, but can be overridden
     
     #NUMERICAL PARAMETERS (for discretization)
     a_max::Float64 = 80.0 #top of asset grid: must be high enough so no one pules up here
-    n_a::Int = 1000 #asset grid points: more = accruate but slower
+    n_a::Int = 500 #asset grid points: more = accruate but slower
     n_e::Int = 7 #income states approximating the AR(1)
     m::Int = 3 #Tauchen grid width in std devs (+/- covers ~99.7%)
     E::Int = 3 #exponent for asset grid spacing: higher = more points near borrowing limit
