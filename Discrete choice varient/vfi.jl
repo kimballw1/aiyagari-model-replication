@@ -4,7 +4,7 @@
 
 """ 
 Goal: Given prices (r,w) and grids, find:
-     V[i,j] - value function: lifetime utality at state (asset i, income j)
+     V[i,j] - value function: lifetime utility at state (asset i, income j)
      g_idx[i,j] - policy function: optimal next-period esset INDEX at each state 
 
 Bellman equation at each state (a_i, e_j):
@@ -20,7 +20,7 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
     #  Utility function — returns -Inf for c ≤ 0, never NaN
     u(c) = c > 0 ? (y == 1.0 ? log(c) : c^(1 - y) / (1 - y)) : -Inf
 
-    #  Precompute cash-on-hand: coh[i,j] = (1+r)*a_i + w*e_j
+    #  cash-on-hand: coh[i,j] = (1+r)*a_i + w*e_j
     #  Shape: n_a × n_e
     coh = (1 + r) .* a_grid .+ (w .* e_grid')   # broadcasting: column vec * row vec
 
@@ -94,7 +94,6 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
                 end
 
             end
-            V .= V_new  # sync before convergence check so err reflects Howard improvement, not the full jump from previous VFI iter
         end
 
         #  Convergence check

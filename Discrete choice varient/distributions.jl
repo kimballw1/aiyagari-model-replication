@@ -33,15 +33,14 @@ function solve_distribution(g_idx, P, p::AiyagariParams)
 
         # check convergence
         err = maximum(abs.(μ_new .- μ))
+        μ = μ_new
         if iter % 10 == 0 || iter == 1
-             println("Distribution iter $iter | error = $err")  
-        end 
+             println("Distribution iter $iter | error = $err")
+        end
         if err < tol_dist
             println("Distribution converged in $iter iterations")
             break
         end
-
-        μ = μ_new
     end
 
     return μ
