@@ -14,6 +14,26 @@ using QuantEcon
 using NonlinearSolve
 
 """
+borrowing_limit(p, w, r, e_min)
+
+Lower bound on next-period assets.
+
+- `:adhoc`   — returns the fixed `p.a_min` (e.g. the classic a_min = 0).
+- `:natural` — returns the Aiyagari (1994) natural borrowing limit −φ, where
+  φ = w·e_min / r is the present value of an unending stream of the *lowest*
+  labor income, i.e. the most a household could borrow and still repay with
+  certainty. `nbl_buffer` sits inside φ so consumption stays strictly
+  positive at the constraint (keeps the value function finite rather than −Inf
+  at the corner), and cap total borrowing at `b_max` for robustness when the
+  root-finder probes r ≤ 0, where φ is not well defined.
+"""
+function borrowing_limit(p::AiyagariParams, w, r, e_min)
+    p.borrow_limit == :natural || return p.a_min
+    φ = r > 0 ? w * e_min / r : Inf          # PV of an unending stream of the lowest income
+    return -min(p.b_max, (1 - p.nbl_buffer) * φ)
+end
+
+"""
 solve_aiyagari
 
 Find the stationary general equilibrium of the model by
@@ -59,10 +79,12 @@ Economic interpretation of output:
 function solve_aiyagari(p::AiyagariParams)
     (; α, δ, β, n_a, n_e, tol_eq) = p
 
-    # Build grids
-    a_grid = CreateAssetGrid(p)
+    # Build grids. The income grid is fixed, but the asset grid's lower bound is
+    # the borrowing limit, which under the :natural variation depends on equilibrium
+    # prices (r, w) — so the asset grid is rebuilt per price inside K_supply.
     z_grid, P = rouwenhorst(p)
     e_grid = exp.(z_grid) #convert from AR(1) from logs back to levels
+    e_min  = minimum(e_grid)
 
     # Aggregate labor supply: stationary mean of labor endowments
     π_stat = stationary_distributions(MarkovChain(P))[1]
@@ -70,7 +92,6 @@ function solve_aiyagari(p::AiyagariParams)
 
     # Capital demand: invert MPK = r + δ for K
     K_demand(r) = L * ((r + δ) / α)^(1 / (α - 1))
-
 
      # Firm pricing: given K (capital), return (r, w)
     function firm_prices(K)
@@ -81,21 +102,31 @@ function solve_aiyagari(p::AiyagariParams)
 
     # Household block: aggregate savings given (r, w)
     function K_supply(r, w)
+        a_grid = CreateAssetGrid(p, borrowing_limit(p, w, r, e_min))
         _, g_idx, _ = solve_vfi(a_grid, e_grid, P, r, w, p)
         μ = solve_distribution(g_idx, P, p)
         return sum(a_grid[g_idx[i, j]] * μ[i, j] for i in 1:n_a, j in 1:n_e) #asset level * the density in that asset income pair for all pairs
     end
 
-    # Root solve over r: finding r* such that K_supply(r*) == K_demand(r*)
-    r_low  = -δ + 1e-4 #K_demand would go to infinity since when r = -δ the equation is 0/int
-    r_high =  1 / β - 1 - 0.01 # stay well below 1/β-1: VFI needs β(1+r) << 1 to contract fast enough
-    # from euler equation in equillibrium β(1+r) = 1, so when we are above 1, we would save forever
+    # Root solve over r: find r* such that K_supply(r*) == K_demand(r*).
+    r_low = -δ + 1e-4         # K_demand → ∞ as r → −δ, so excess < 0 at this floor
+    r_cap = 1 / β - 1 - 1e-6  # hard ceiling: VFI needs β(1+r) < 1 to contract; at r = 1/β−1 saving is unbounded
 
     function excess(r, _)
         Kd = K_demand(r)
         _, w = firm_prices(Kd)
         Ks = K_supply(r, w)
         return Ks - Kd
+    end
+
+    # Start from a conservative ceiling (keeps the endpoint VFI fast), then widen it toward the
+    # RA rate only if it doesn't yet bracket r*. When the precautionary motive is weak (low σ, ρ,
+    # or γ — or the loose :natural limit) the economy is near complete markets and r* sits just
+    # below 1/β−1, above the conservative ceiling. K_supply explodes as r → 1/β−1, so once r_high
+    # is close enough excess(r_high) > 0 and [r_low, r_high] brackets r*.
+    r_high = 1 / β - 1 - (p.borrow_limit == :natural ? 0.001 : 0.01)
+    while excess(r_high, nothing) < 0 && r_high < r_cap
+        r_high = min(r_cap, (r_high + (1 / β - 1)) / 2)   # halve the remaining gap to the RA rate
     end
 
     prob = IntervalNonlinearProblem(excess, (r_low, r_high))
@@ -105,7 +136,8 @@ function solve_aiyagari(p::AiyagariParams)
     K_eq = K_demand(r_eq)
     _, w_eq = firm_prices(K_eq)
 
-    # solve at equilibrium prices
+    # solve at equilibrium prices (rebuild the grid at the equilibrium borrowing limit)
+    a_grid = CreateAssetGrid(p, borrowing_limit(p, w_eq, r_eq, e_min))
     V, g_idx, c = solve_vfi(a_grid, e_grid, P, r_eq, w_eq, p)
     μ = solve_distribution(g_idx, P, p)
 

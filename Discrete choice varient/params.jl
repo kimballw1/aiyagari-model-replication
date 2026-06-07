@@ -18,8 +18,11 @@ Default values are provided, but can be overridden
     δ::Float64 = 0.08 #deprecition rate: 8% of cpaital wears out per year 
     ρ::Float64 = 0.9 #income persistence: how long incomme shocks last
     σ::Float64 = 0.2 #std of stationary log income
-    a_min::Float64 = 0.0 #borrowing limit
-    
+    a_min::Float64 = 0.0 #ad-hoc borrowing limit (used when borrow_limit = :adhoc)
+    borrow_limit::Symbol = :adhoc #:adhoc = fixed a_min (clean inequality analysis); :natural = Aiyagari limit −w·e_min/r
+    b_max::Float64 = 30.0 #cap on borrowing for the natural limit (robust when solver probes r ≤ 0)
+    nbl_buffer::Float64 = 1e-2 #borrow this fraction inside the natural limit so c > 0 at the constraint
+
     #NUMERICAL PARAMETERS (for discretization)
     a_max::Float64 = 80.0 #top of asset grid: must be high enough so no one pules up here
     n_a::Int = 500 #asset grid points: more = accruate but slower

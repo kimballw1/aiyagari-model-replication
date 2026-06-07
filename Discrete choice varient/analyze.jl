@@ -96,7 +96,6 @@ println("  ", rpad("Precautionary wedge", 26), " ", round((1/β - 1 - result.r) 
 #   Eigenvalues of P  |λ₂| controls the speed of mixing
 #   Spectral gap      1 − |λ₂|: how quickly the chain forgets its past
 #   TV(total variation)-mixing time    upper bound on steps to reach ε-close to stationarity
-#   Autocorrelation   should match AR(1) theory ACF(h) = ρ^h
 
 println("\n", "─"^64)
 println("  §2  INCOME PROCESS — MARKOV CHAIN")
@@ -114,45 +113,16 @@ println("  ", rpad("Eigenvalues of P", 26), " ", round.(real.(λ_sort), digits=5
 println("  ", rpad("Spectral gap (1 − |λ₂|)", 26), " ", round(sgap, digits=5))
 println("  ", rpad("TV-mixing time (ε=0.01)", 26), " ≤ $t_mix steps")
 
-# Autocorrelation of log income: Markov numerics vs AR(1) theory ρ^h.
-# Cov(z_0, z_h) = (π .* z_grid)' P^h z_grid − mean_z²
-mean_z  = dot(π_inc, z_grid)
-var_z   = dot(π_inc, (z_grid .- mean_z).^2)
-max_lag = 10
-acf_mc  = zeros(max_lag + 1)
-Ph = Matrix{Float64}(I, n_e, n_e)   # P^0 = identity
-for h in 0:max_lag
-    acf_mc[h+1] = (dot(π_inc .* z_grid, Ph * z_grid) - mean_z^2) / var_z
-    Ph *= P_mat
-end
-
-println("\n  Log-income ACF — Markov chain vs AR(1) theory:")
-println("  ", rpad("Lag", 6), " ", lpad("Markov", 12), " ", lpad("ρ^h (theory)", 14))
-for h in 0:max_lag
-    println("  ", rpad(h, 6), " ", lpad(round(acf_mc[h+1], digits=5), 12), " ", lpad(round(p.ρ^h, digits=5), 14))
-end
-
 # Stationary income summary
 var_e = dot(π_inc, (result.e_grid .- dot(π_inc, result.e_grid)).^2)
 println()
 println("  ", rpad("Stationary income std σ_e", 26), " ", round(sqrt(var_e), digits=4))
 println("  ", rpad("Income Gini G_e", 26), " ", round(gini(result.e_grid, π_inc), digits=4))
 
-# Plot: ACF bars with theoretical AR(1) overlay
-plt_acf = bar(0:max_lag, acf_mc, color=:steelblue, alpha=0.85,
-              xlabel="Lag h", ylabel="Autocorrelation",
-              title="Log-Income ACF  (ρ = $(p.ρ))", legend=:topright, label="Markov")
-plot!(plt_acf, 0:max_lag, p.ρ .^ (0:max_lag),
-      linestyle=:dash, linewidth=2, color=:crimson, label="ρ^h (theory)")
-savefig(plt_acf, "fig_acf.png")
-println("  → saved: fig_acf.png")
-
-
 # =============================================================================
 # §3  STATIONARY WEALTH DISTRIBUTION & INEQUALITY
 # =============================================================================
-# Characterize the cross-sectional wealth distribution. μ is the unique
-# invariant measure of the joint (a, e) Markov chain induced by policy g_idx.
+# Characterize the cross-sectional wealth distribution.
 #   Mean / median / std   basic moments of the marginal wealth distribution
 #   Gini coefficient      0 = perfect equality, 1 = perfect inequality
 #   Top shares            wealth held by the top 10% and top 1%
@@ -425,11 +395,7 @@ println("  → saved: fig_borrowing_constraint.png")
 # =============================================================================
 # §7  ERGODICITY — CONVERGENCE TO THE STATIONARY DISTRIBUTION
 # =============================================================================
-# Verify the joint (a, e) chain is ergodic: from ANY initial distribution, μ_t
-# converges to the unique stationary μ* as t → ∞ (the Markov-chain LLN — cross-
-# sectional averages equal time-series averages for any household path).
-# We forward-iterate μ_t from three very different starting points and check
-# that ||μ_t − μ*||∞ decays geometrically toward the same μ*.
+# Verify the joint (a, e) chain is ergodic: from ANY initial distribution.
 
 println("\n", "─"^64)
 println("  §7  ERGODICITY — CONVERGENCE TO STATIONARY DISTRIBUTION")
@@ -516,7 +482,6 @@ println("\n", "═"^64)
 println("  ALL FIGURES SAVED")
 println("═"^64)
 for (file, desc) in [
-    ("fig_acf.png",                  "ACF of log income vs AR(1) theory"),
     ("fig_lorenz.png",               "Lorenz curve and Gini coefficient"),
     ("fig_wealth_dist.png",          "Stationary wealth density"),
     ("fig_policy_savings.png",       "Savings policy a'(a,e)"),

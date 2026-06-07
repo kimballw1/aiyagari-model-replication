@@ -22,7 +22,7 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
 
     #  cash-on-hand: coh[i,j] = (1+r)*a_i + w*e_j
     #  Shape: n_a × n_e
-    coh = (1 + r) .* a_grid .+ (w .* e_grid')   # broadcasting: column vec * row vec
+    coh = (1 + r) .* a_grid .+ (w .* e_grid') 
 
     #  Initialize value function and policy
     V = zeros(n_a, n_e)
@@ -119,5 +119,5 @@ function solve_vfi(a_grid, e_grid, P, r, w, p::AiyagariParams)
         end
     end
 
-    return V, g_idx, c #Value of each asset-income pair, 
+    return V, g_idx, c #Value of each asset-income pair, optimal next-period asset index, and optimal consumption at each state 
 end
