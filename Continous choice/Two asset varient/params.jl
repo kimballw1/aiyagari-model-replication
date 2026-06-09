@@ -1,12 +1,8 @@
+
 # =============================================================================
-# params.jl
+# params.jl  —  Two-asset (liquid + illiquid) continuous-choice Aiyagari / KMV
 # =============================================================================
 
-"""
-AiyagariParams
-
-A struct containing all economic and numerical parameters for the Aiyagari (1994) model
-Default values are provided, but can be overridden
-"""
-@kwdef struct AiyagariParams
-
+@kwdef struct TwoAssetParams
+    #Economic parameters
+end 
