@@ -47,8 +47,15 @@ Gini coefficient of the discrete distribution `(vals, wts)`, computed as
 Returns a value in `[0, 1]`: `0` is perfect equality (Lorenz curve on the 45°
 line) and values approaching `1` mean wealth concentrated in a vanishing share
 of the population.
+
+Returns `NaN` if any value is negative. The Lorenz/Gini construction assumes
+non-negative outcomes; under the natural borrowing limit a large share of
+households hold negative wealth, which sends the Lorenz curve below zero and
+makes the coefficient leave `[0, 1]` (it can exceed 1). The statistic is not
+meaningful there, so we decline to report it rather than print a misleading number.
 """
 function gini(vals, wts)
+    any(<(0), vals) && return NaN
     F, L = lorenz_pts(vals, wts)
     area = sum((F[k] - F[k-1]) * (L[k] + L[k-1]) / 2 for k in 2:lastindex(F))
     return 1.0 - 2.0 * area
@@ -152,19 +159,25 @@ println("  ", rpad("Mean wealth", 26), " ", round(mean_a, digits=4))
 println("  ", rpad("Median wealth", 26), " ", round(med_a, digits=4))
 println("  ", rpad("Std wealth", 26), " ", round(std_a, digits=4))
 println("  ", rpad("Coeff. of variation", 26), " ", round(std_a / mean_a, digits=4))
-println("  ", rpad("Gini (wealth)", 26), " ", round(G_w, digits=4))
+println("  ", rpad("Gini (wealth)", 26), " ", isnan(G_w) ? "n/a — negative wealth" : round(G_w, digits=4))
 println("  ", rpad("Top-10% share", 26), " ", round(sh10, digits=4))
 println("  ", rpad("Top-1%  share", 26), " ", round(sh1, digits=4))
 
-# Plot: Lorenz curve — gap below the 45° line shows inequality
-F_L, L_L = lorenz_pts(a_vec, μ_a)
-plt_lorenz = plot(F_L, L_L, linewidth=2, color=:darkblue,
-                  label="Lorenz  (Gini = $(round(G_w, digits=3)))",
-                  xlabel="Cumulative population share",
-                  ylabel="Cumulative wealth share",
-                  title="Lorenz Curve — Wealth Distribution")
-plot!(plt_lorenz, [0, 1], [0, 1], linestyle=:dash, color=:gray, label="Perfect equality")
-savefig(plt_lorenz, "fig_lorenz.png")
+# Plot: Lorenz curve — gap below the 45° line shows inequality. Skipped when
+# households hold negative wealth (natural limit): the curve dips below zero and
+# the Gini is undefined (gini() returns NaN), so the plot would be misleading.
+if isnan(G_w)
+    println("  Lorenz/Gini skipped — households hold negative wealth (natural borrowing limit).")
+else
+    F_L, L_L = lorenz_pts(a_vec, μ_a)
+    plt_lorenz = plot(F_L, L_L, linewidth=2, color=:darkblue,
+                      label="Lorenz  (Gini = $(round(G_w, digits=3)))",
+                      xlabel="Cumulative population share",
+                      ylabel="Cumulative wealth share",
+                      title="Lorenz Curve — Wealth Distribution")
+    plot!(plt_lorenz, [0, 1], [0, 1], linestyle=:dash, color=:gray, label="Perfect equality")
+    savefig(plt_lorenz, "fig_lorenz.png")
+end
 
 # Plot: wealth density as a UNIFORM-BIN histogram.
 # The asset grid is curved (a_min + (a_max−a_min)·u^E), so the first points are
