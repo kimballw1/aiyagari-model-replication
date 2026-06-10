@@ -3,9 +3,11 @@
 # =============================================================================
 
 """ 
+solve_vfi
+
 Goal: Given prices (r,w) and grids, find:
      V[i,j] - value function: lifetime utility at state (asset i, income j)
-     g_idx[i,j] - policy function: optimal next-period esset INDEX at each state 
+     g_idx[i,j] - policy function: optimal next-period asset INDEX at each state 
 
 Bellman equation at each state (a_i, e_j):
      V(a_i, e_j) = max over a_k { u(c) + β * E[V(a_k, e')] }

@@ -3,29 +3,26 @@
 # main.jl
 # =============================================================================
 
+
+using LinearAlgebra
+using QuantEcon
+using NonlinearSolve
+
 include("params.jl")
 include("grids.jl")
 include("rouwenhorst.jl")
 include("vfi.jl")
 include("distributions.jl")
 
-using LinearAlgebra
-using QuantEcon
-using NonlinearSolve
-
 """
 borrowing_limit(p, w, r, e_min)
 
 Lower bound on next-period assets.
-
 - `:adhoc`   — returns the fixed `p.a_min` (e.g. the classic a_min = 0).
 - `:natural` — returns the Aiyagari (1994) natural borrowing limit −φ, where
   φ = w·e_min / r is the present value of an unending stream of the *lowest*
   labor income, i.e. the most a household could borrow and still repay with
-  certainty. `nbl_buffer` sits inside φ so consumption stays strictly
-  positive at the constraint (keeps the value function finite rather than −Inf
-  at the corner), and cap total borrowing at `b_max` for robustness when the
-  root-finder probes r ≤ 0, where φ is not well defined.
+  certainty.
 """
 function borrowing_limit(p::AiyagariParams, w, r, e_min)
     p.borrow_limit == :natural || return p.a_min
@@ -42,7 +39,7 @@ solving for the interest rate r* where the capital market clears:
 
 Returns a named tuple with equilibrium prices, aggregates, and household objects.
 
-Economic interpretation of output:
+Output:
     r (interest rate): the equilibrium net return on capital.
 
     w (wage):          the competitive wage equal to the marginal product of labor.
@@ -88,7 +85,7 @@ function solve_aiyagari(p::AiyagariParams)
 
     # Aggregate labor supply: stationary mean of labor endowments
     π_stat = stationary_distributions(MarkovChain(P))[1]
-    L = dot(π_stat, e_grid)  #Labor caculated from the fraction of households in each income state j in steadt state 
+    L = dot(π_stat, e_grid)  #Labor caculated from the fraction of households in each income state j in steady state 
 
     # Capital demand: invert MPK = r + δ for K
     K_demand(r) = L * ((r + δ) / α)^(1 / (α - 1))
@@ -109,7 +106,7 @@ function solve_aiyagari(p::AiyagariParams)
     end
 
     # Root solve over r: find r* such that K_supply(r*) == K_demand(r*).
-    r_low = -δ + 1e-4         # K_demand → ∞ as r → −δ, so excess < 0 at this floor
+    r_low = -δ + 1e-4         # K_demand -> inf as r -> −δ, so excess < 0 at this floor
     r_cap = 1 / β - 1 - 1e-6  # hard ceiling: VFI needs β(1+r) < 1 to contract; at r = 1/β−1 saving is unbounded
 
     function excess(r, _)
@@ -122,7 +119,7 @@ function solve_aiyagari(p::AiyagariParams)
     # Start from a conservative ceiling (keeps the endpoint VFI fast), then widen it toward the
     # RA rate only if it doesn't yet bracket r*. When the precautionary motive is weak (low σ, ρ,
     # or γ — or the loose :natural limit) the economy is near complete markets and r* sits just
-    # below 1/β−1, above the conservative ceiling. K_supply explodes as r → 1/β−1, so once r_high
+    # below 1/β−1, above the conservative ceiling. K_supply explodes as r -> 1/β−1, so once r_high
     # is close enough excess(r_high) > 0 and [r_low, r_high] brackets r*.
     r_high = 1 / β - 1 - (p.borrow_limit == :natural ? 0.001 : 0.01)
     while excess(r_high, nothing) < 0 && r_high < r_cap
@@ -139,7 +136,11 @@ function solve_aiyagari(p::AiyagariParams)
     # solve at equilibrium prices (rebuild the grid at the equilibrium borrowing limit)
     a_grid = CreateAssetGrid(p, borrowing_limit(p, w_eq, r_eq, e_min))
     V, g_idx, c = solve_vfi(a_grid, e_grid, P, r_eq, w_eq, p)
-    μ = solve_distribution(g_idx, P, p)
+    # Final, reported distribution: solve to the tight tolerance so μ is actually
+    # at the fixed point (the loose tol_dist used inside the root-find stops early
+    # on this slow-mixing chain and biases the distribution, Gini, and ergodicity
+    # reference). See the note in solve_distribution.
+    μ = solve_distribution(g_idx, P, p; tol = p.tol_dist_final, max_iter = p.max_iter_dist_final)
 
     println("\n=== Equilibrium Results ===")
     println("  r* = $r_eq")

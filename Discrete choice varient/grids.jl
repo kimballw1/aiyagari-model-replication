@@ -14,7 +14,7 @@ densely near `a_min` and sparsely near `a_max`.
 # Arguments
 - `p::AiyagariParams`: Struct containing model parameters (requires `a_max`, `n_a`, and `E`).
 - `a_min::Real`: lower bound of the grid; defaults to `p.a_min`, but can be overridden with a
-  price-dependent natural borrowing limit (see `borrowing_limit`).
+  price-dependent natural borrowing limit.
 
 # Returns
 - `a_grid::Vector{Float64}`: 1-D array of non-uniformly spaced asset grid points.

@@ -166,10 +166,25 @@ plt_lorenz = plot(F_L, L_L, linewidth=2, color=:darkblue,
 plot!(plt_lorenz, [0, 1], [0, 1], linestyle=:dash, color=:gray, label="Perfect equality")
 savefig(plt_lorenz, "fig_lorenz.png")
 
-# Plot: wealth density — mass at each grid point (drop near-zero points)
-nz = μ_a .> 1e-10
-plt_wdist = bar(a_vec[nz], μ_a[nz], color=:steelblue, alpha=0.7, legend=false,
-                xlabel="Wealth a", ylabel="Mass",
+# Plot: wealth density as a UNIFORM-BIN histogram.
+# The asset grid is curved (a_min + (a_max−a_min)·u^E), so the first points are
+# packed into a tiny interval near the constraint. Plotting raw mass μ_a at each
+# grid node therefore smears the constrained pile across many near-zero-width bars
+# and over-weights the sparse tail, hiding the true right-skewed shape. Rebinning
+# the mass onto evenly spaced wealth bins recovers it. The display range is capped
+# at the 99.5th wealth percentile so the long thin tail doesn't flatten the bulk.
+disp_max = a_vec[findfirst(cdf_a .>= 0.995)]
+nbins    = 60
+edges    = range(a_vec[1], disp_max, length = nbins + 1)
+centers  = (edges[1:end-1] .+ edges[2:end]) ./ 2
+binwidth = step(edges)
+hist     = zeros(nbins)
+for i in 1:n_a
+    b = clamp(floor(Int, (a_vec[i] - edges[1]) / binwidth) + 1, 1, nbins)
+    a_vec[i] <= disp_max && (hist[b] += μ_a[i])   # let the thin tail beyond the cap fade out
+end
+plt_wdist = bar(centers, hist, color=:steelblue, alpha=0.8, legend=false,
+                xlabel="Wealth a", ylabel="Share of households",
                 title="Stationary Wealth Distribution")
 savefig(plt_wdist, "fig_wealth_dist.png")
 println("  → saved: fig_lorenz.png, fig_wealth_dist.png")
@@ -427,8 +442,14 @@ via the savings policy `g_idx`, while income mixes via the Markov matrix `P`.
 - `T`: number of forward iterations.
 
 # Returns
-A length-`T` vector whose `t`-th entry is the sup-norm distance
-`‖μ_t − μ_star‖∞`, which should decay geometrically if the chain is ergodic.
+A length-`T` vector whose `t`-th entry is the total-variation distance
+`½·Σ|μ_t − μ_star|`, which should decay geometrically if the chain is ergodic.
+
+We use total variation, not the sup-norm, because TV is the standard metric for
+Markov mixing (it is what the reported mixing time refers to) and because it is
+provably non-increasing along the chain. The sup-norm tracks only the single
+largest cell, which can cross `μ_star` from above to below near convergence and
+momentarily collapse to zero, producing a spurious downward spike on a log plot.
 """
 function fwd_iter_dist(μ0, g_idx, P, μ_star, T)
     na, ne = size(μ0)
@@ -443,13 +464,16 @@ function fwd_iter_dist(μ0, g_idx, P, μ_star, T)
                 μ_new[k, j2] += P[j, j2] * μ_t[i, j]
             end
         end
-        d[t] = maximum(abs.(μ_new .- μ_star))   # sup-norm distance to stationary dist
+        d[t] = 0.5 * sum(abs.(μ_new .- μ_star))   # total-variation distance to stationary dist
         μ_t  = μ_new
     end
     return d
 end
 
-T_erg = 300
+# T_erg is long enough that even the slow asset-accumulation mode (|λ₂| ≈ 0.98,
+# much slower than the income chain's ρ) drives every start down to the numerical
+# floor, so the three curves visibly flatten and meet at the same μ*.
+T_erg = 1200
 iter(μ0) = fwd_iter_dist(μ0, result.g_idx, P_mat, result.μ, T_erg)
 d_poor = iter(point_mass(1, 1))            # start: all poorest (a_min, e_min)
 d_rich = iter(point_mass(n_a, n_e))        # start: all richest (a_max, e_max)
@@ -458,7 +482,7 @@ d_mid  = iter(point_mass(n_a÷2, n_e÷2+1))  # start: all at grid midpoint
 # All three lines converging to the same μ* confirms ergodicity
 plt_erg = plot(1:T_erg, log10.(d_poor .+ 1e-16),
                label="Start: all poor  (a_min, e_min)",
-               xlabel="Iterations t", ylabel="log10 ||μ_t − μ*||∞",
+               xlabel="Iterations t", ylabel="log10 TV(μ_t, μ*)",
                title="Convergence to Stationary Distribution  (Ergodic theorem)",
                linewidth=2, color=:crimson)
 plot!(plt_erg, 1:T_erg, log10.(d_rich .+ 1e-16),
@@ -467,7 +491,7 @@ plot!(plt_erg, 1:T_erg, log10.(d_mid .+ 1e-16),
       label="Start: midpoint", linewidth=2, color=:darkgreen, linestyle=:dash)
 savefig(plt_erg, "fig_ergodicity.png")
 
-println("\n  Sup-norm distance ||μ_t − μ*||∞:")
+println("\n  Total-variation distance TV(μ_t, μ*):")
 println("  ", rpad("t", 8), " ", lpad("poor start", 12), " ", lpad("rich start", 12))
 for t in (50, 150, T_erg)
     println("  ", rpad(t, 8), " ", lpad(round(d_poor[t], sigdigits=2), 12), " ", lpad(round(d_rich[t], sigdigits=2), 12))
