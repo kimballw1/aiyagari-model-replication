@@ -1,8 +1,8 @@
 # mccall-search-model-replication
 
-This repository solves the **McCall (1970)** sequential job-search model in Julia, from the original risk-neutral reservation-wage problem through the modern extensions that turned it into the workhorse of labor economics: job separation (so unemployment has a *steady state*), risk aversion, persistent (serially correlated) wage offers, and a Monte-Carlo treatment of unemployment durations. An unemployed worker draws wage offers from a fixed distribution and decides each period whether to accept the job in hand or keep searching for something better. The whole model collapses to a single number — the **reservation wage** — and the code computes it two independent ways (a fast scalar fixed point and a full value-function iteration), then uses it to generate hazard rates, expected unemployment durations, the steady-state unemployment rate, and the cross-section of accepted wages.
+I solve the **McCall (1970)** sequential job search model in Julia, from the original risk-neutral reservation wage problem through the modern extensions that turned it into the workhorse of labor economics: job separation (so unemployment has a *steady state*), risk aversion, persistent (serially correlated) wage offers, and a Monte-Carlo treatment of unemployment durations. An unemployed worker draws wage offers from a fixed distribution and decides each period whether to accept the job in hand or keep searching for something better. The whole model collapses to a single number (the **reservation wage**) and the code computes it two independent ways (a fast scalar fixed point and a full value-function iteration), then uses it to generate hazard rates, expected unemployment durations, the steady-state unemployment rate, and the cross-section of accepted wages.
 
-The flow utility is CRRA, `u(x) = x^{1−γ}/(1−γ)` (with `u(x)=log x` at `γ=1`), and setting **`γ = 0` recovers McCall's original risk-neutral worker**, for whom utility is just income. The default calibration uses `γ = 2`, so the baseline already carries the risk-aversion margin that McCall's 1970 paper abstracted from — letting the same code show *both* the classic results and how risk aversion bends them.
+The flow utility is CRRA (constant relative risk aversion), `u(x) = x^{1−γ}/(1−γ)` (with `u(x)=log x` at `γ=1`), and setting **`γ = 0` recovers McCall's original risk-neutral worker**, for whom utility is just income. The default calibration uses `γ = 2`, so the baseline already carries the risk-aversion margin that McCall's 1970 paper abstracted from — letting the same code show *both* the classic results and how risk aversion bends them.
 
 ---
 
@@ -12,14 +12,14 @@ The flow utility is CRRA, `u(x) = x^{1−γ}/(1−γ)` (with `u(x)=log x` at `γ
 
 A worker is **unemployed** and gets a job offer this period — a wage `w` drawn from a distribution. She has exactly one choice:
 
-- **Accept** → take the job and earn `w` (for a while, or forever).
-- **Reject** → collect an unemployment benefit `c`, throw the offer back, and draw a fresh offer next period.
+- **Accept** and take the job and earn `w` (for a while, or forever).
+- **Reject** and collect an unemployment benefit `c`, throw the offer back, and draw a fresh offer next period.
 
-That's the entire model. The tension is between a **bird in the hand** (the offer `w` you can have right now) and the **option to wait** for something better (at the cost of a period spent unemployed earning only `c`). The genius of McCall (1970) was to notice that this seemingly complicated forward-looking problem — there are `2ⁿ` accept/reject paths after `n` periods — has a dead-simple solution: a single cutoff.
+That's the entire model. The tension is between a **bird in the hand** (the offer `w` you can have right now) and the **option to wait** for something better (at the cost of a period spent unemployed earning only `c`). There are `2ⁿ` accept/reject paths after `n` periods.
 
 ### The headline result: the reservation wage
 
-> The optimal policy is a **threshold rule**. There is a number `w̄` — the **reservation wage** — such that the worker **accepts any offer `w ≥ w̄` and rejects any offer below it**. Searching is valuable precisely because a rational worker throws back the low offers and waits for a good one.
+> The optimal policy is a **threshold rule**. There is a number `w̄` (the **reservation wage**) such that the worker **accepts any offer `w ≥ w̄` and rejects any offer below it**. Searching is valuable precisely because a rational worker throws back the low offers and waits for a good one.
 
 Everything the model has to say is encoded in where `w̄` sits. Accepting too eagerly (low `w̄`) wastes the option to find a better match; holding out too long (high `w̄`) burns income while unemployed. The reservation wage is the exact balance point, and it satisfies a strikingly clean equation (derived below):
 
