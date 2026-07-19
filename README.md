@@ -1,12 +1,20 @@
-# Replication of important dynamic econ models
+# Replications of Dynamic Economic Models
 
->An important part of my interest in dynamic programming and continining to learn and grow my knowledge about the space is reading and understand the work of people much smarter than me.
->In this growing repository I section each model into folders contaninig the replication code and figures/anaylsis it produces as well as a detailed summary of the model. 
+A big part of my interest in dynamic programming is reading and understanding the work of people much smarter than me. This growing repository is where I do that. Each folder holds one model: the replication code, the figures and analysis it produces, and a detailed README walking through the economics.
 
-### My work so far
-- Aiygari(1984)
-- Mcall search model
-- RBC
-- Sovergn debt model
+Everything is written in Julia. Each model is self-contained, and its README explains the model, the solution method, and how to run the code.
 
-future addtions planned are the new keysnian, HANK, and RANK models
+## Models so far
+
+| Model | Paper | What's inside |
+|---|---|---|
+| [Aiyagari](Aiyagari%281984%29) | Aiyagari (1994), "Uninsured Idiosyncratic Risk and Aggregate Saving" | Heterogeneous agents with uninsurable income risk and a borrowing constraint; stationary general equilibrium via value function iteration and capital-market clearing |
+| [McCall job search](mccall-search-model) | McCall (1970), "Economics of Information and Job Search" | The reservation wage computed two independent ways, plus separations, risk aversion, persistent offers, and simulated unemployment durations |
+| [Rust engine replacement](rust-engine-replacement) | Rust (1987), "Optimal Replacement of GMC Bus Engines" | Solves and estimates the model: nested fixed point (NFXP) and Hotz–Miller CCP estimators, a Monte-Carlo study, and a counterfactual policy experiment |
+| [Real business cycle](rbc-model) | Kydland & Prescott (1982), "Time to Build and Aggregate Fluctuations" | Value function iteration benchmark and Klein log-linearization, calibrated to quarterly U.S. data with an HP-filtered moment scorecard |
+| [Sovereign default](sovereign-default-model) | Eaton & Gersovitz (1981); Arellano (2008) | Endogenous bond price schedule, default sets, and the business-cycle facts of emerging-market debt crises |
+
+## Planned additions
+
+- New Keynesian model
+- HANK and RANK
