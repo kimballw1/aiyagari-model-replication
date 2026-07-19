@@ -1,6 +1,6 @@
 # Replications of Dynamic Economic Models
 
-A big part of my interest in dynamic programming is reading and understanding the work of people much smarter than me. This growing repository is where I do that. Each folder holds one model: the replication code, the figures and analysis it produces, and a detailed README walking through the economics.
+A big part of my interest in dynamic programming is reading and understanding the work of people much smarter than me. This growing repository is where I do that. Each folder holds one model: the replication code, the figures and analysis it produces, and a model walkthrough.
 
 Everything is written in Julia. Each model is self-contained, and its README explains the model, the solution method, and how to run the code.
 
