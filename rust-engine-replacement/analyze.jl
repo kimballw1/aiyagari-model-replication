@@ -3,7 +3,7 @@
 # =============================================================================
 #
 # Run with:  julia analyze.jl   (includes main.jl, solves the baseline, then
-# works through §1–§7 and writes figures to graphs/). A full pass is ~90 s
+# works through §1–§7 and writes figures to graphs/). A full pass is ~25 s
 # (the Monte-Carlo estimation study in §6 dominates the time).
 
 include("main.jl")

@@ -67,7 +67,7 @@ Solving the Bellman equation gives `v_keep(x)` (falling in mileage — keeping a
 | `main.jl` | assembles the blocks and solves/prints the baseline |
 | `analyze.jl` | diagnostics, EV Monte-Carlo checks, comparative statics, estimation, the sampling-distribution study, and the counterfactual |
 
-Run order: `julia analyze.jl` (it `include`s `main.jl`, solves the baseline, then runs §1–§7 below and writes figures to `graphs/`). A full pass takes ~17 s. Requires `Optim`, `Distributions`, and `Plots`.
+Run order: `julia analyze.jl` (it `include`s `main.jl`, solves the baseline, then runs §1–§7 below and writes figures to `graphs/`). A full pass takes ~25 s. Requires `Optim`, `Distributions`, and `Plots`.
 
 ___
 
