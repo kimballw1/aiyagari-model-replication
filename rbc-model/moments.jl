@@ -33,52 +33,61 @@ function hp_filter(y::AbstractVector, λ::Real)
 end
 
 """
-    simulate_linear(lin::LinearRBC, m::RBCModel, T; seed = 1, burn = 200) -> NamedTuple
+    simulate_vfi(sol, m::RBCModel, T; seed = 1, burn = 200) -> NamedTuple
 
-Simulate the log-linear state-space: draw TFP innovations `ε ~ N(0, σ_ε²)`,
-propagate `[k̂, ẑ]` and map to `[ŷ, ĉ, î, n̂]` via the loadings `C`. Returns the
-log-deviation series (after a burn-in) for output, consumption, investment,
-hours, capital, and TFP.
+Simulate the solved model: draw the TFP Markov chain from `P_z`, roll capital
+forward with the savings policy, and back out output, consumption, and
+investment from the budget constraint. Returns the log series (after a
+burn-in) for output, consumption, investment, capital, and TFP.
 """
-function simulate_linear(lin::LinearRBC, m::RBCModel, T::Int; seed = 1, burn = 200)
+function simulate_vfi(sol, m::RBCModel, T::Int; seed = 1, burn = 200)
     rng = MersenneTwister(seed)
-    s = zeros(2)
+    (; α, δ) = m
+    (; kp_itp, k_grid, z_grid, P_z) = sol
+    N_z = length(z_grid)
+    Pcum = cumsum(P_z, dims = 2)
+
     Tt = T + burn
-    out = (y = zeros(Tt), c = zeros(Tt), i = zeros(Tt), n = zeros(Tt), k = zeros(Tt), z = zeros(Tt))
+    y = zeros(Tt); c = zeros(Tt); i = zeros(Tt); k = zeros(Tt); z = zeros(Tt)
+    iz = (N_z + 1) ÷ 2                       # start at mean TFP
+    kt = steady_state(m).k                   # and at the steady-state capital
     for t in 1:Tt
-        v = lin.C * s
-        out.y[t], out.c[t], out.i[t], out.n[t] = v
-        out.k[t], out.z[t] = s
-        ε = m.σ_ε * randn(rng)
-        s = lin.P * s + [0.0, ε]
+        zt = z_grid[iz]
+        kp = clamp(kp_itp[iz](kt), k_grid[1], k_grid[end])
+        yt = zt * kt^α
+        it = kp - (1 - δ) * kt
+        y[t] = log(yt); c[t] = log(yt - it); i[t] = log(it)
+        k[t] = log(kt); z[t] = log(zt)
+        kt = kp
+        iz = min(searchsortedfirst(view(Pcum, iz, :), rand(rng)), N_z)
     end
     keep = burn+1:Tt
-    return (; y = out.y[keep], c = out.c[keep], i = out.i[keep],
-            n = out.n[keep], k = out.k[keep], z = out.z[keep])
+    return (; y = y[keep], c = c[keep], i = i[keep], k = k[keep], z = z[keep])
 end
 
 """
-    business_cycle_stats(lin, m; T = 10_000, λ = 1600, seed = 1) -> NamedTuple
+    business_cycle_stats(sol, m; T = 10_000, λ = 1600, seed = 1) -> NamedTuple
 
-The business-cycle scorecard. Simulate, HP-filter each log series, and report for
-output, consumption, investment, and hours:
+The business-cycle scorecard. Simulate, HP-filter each log series, and report
+for output, consumption, and investment:
 - `σ`         — percent standard deviation of the cyclical component,
 - `σ_rel`     — volatility relative to output,
 - `corr_y`    — contemporaneous correlation with output,
 - `autocorr`  — first-order autocorrelation (persistence).
+
+(Hours are constant by construction here — inelastic labor — so there is no
+hours row.)
 """
-function business_cycle_stats(lin::LinearRBC, m::RBCModel; T = 10_000, λ = 1600, seed = 1)
-    sim = simulate_linear(lin, m, T; seed)
-    # Series are already log-deviations; HP-filter to mimic the empirical treatment.
+function business_cycle_stats(sol, m::RBCModel; T = 10_000, λ = 1600, seed = 1)
+    sim = simulate_vfi(sol, m, T; seed)
     cyc(x) = hp_filter(x, λ)[2]
-    yc, cc, ic, nc = cyc(sim.y), cyc(sim.c), cyc(sim.i), cyc(sim.n)
+    yc, cc, ic = cyc(sim.y), cyc(sim.c), cyc(sim.i)
     σy = std(yc)
     ac(x) = cor(x[1:end-1], x[2:end])
     rows = [
         (:output,      100σy,        1.0,            1.0,          ac(yc)),
         (:consumption, 100std(cc),   std(cc)/σy,     cor(yc, cc),  ac(cc)),
         (:investment,  100std(ic),   std(ic)/σy,     cor(yc, ic),  ac(ic)),
-        (:hours,       100std(nc),   std(nc)/σy,     cor(yc, nc),  ac(nc)),
     ]
     return (; rows, σy = 100σy)
 end

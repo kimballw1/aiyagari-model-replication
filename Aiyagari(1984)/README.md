@@ -71,6 +71,8 @@ Nothing pins `r` above zero. If the precautionary motive is strong enough (high 
 
 ## Files
 
+The code lives in `Discrete choice varient/`. `Sim/` is a separate interactive browser version of the same model (see its own README).
+
 | File | Role |
 |---|---|
 | `params.jl` | `AiyagariParams`: all economic and numerical parameters (with defaults) |
@@ -81,6 +83,6 @@ Nothing pins `r` above zero. If the precautionary motive is strong enough (high 
 | `main.jl` | assembles the blocks and root-finds `r*` for general equilibrium |
 | `analyze.jl` | post-solution diagnostics, inequality, comparative statics, plots |
 
-Run it with `julia analyze.jl` (it includes `main.jl`, which solves the baseline, then runs §1–§7 below). A full pass takes ~50 s.
+Run it from inside `Discrete choice varient/` with `julia analyze.jl` (it includes `main.jl`, which solves the baseline, then runs §1–§7). The section-by-section walkthrough is in `Discrete choice varient/README_analyze.md`. A full pass takes ~12 minutes; the comparative-statics sweeps in §6 re-solve the full equilibrium many times and dominate the runtime.
 
 ---

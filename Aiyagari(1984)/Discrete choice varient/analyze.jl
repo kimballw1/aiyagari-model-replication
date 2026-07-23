@@ -7,6 +7,10 @@ include("main.jl")
 using Statistics
 using Plots
 
+# figures go to graphs/ next to this file, same as the other model folders
+const FIG = joinpath(@__DIR__, "graphs")
+isdir(FIG) || mkdir(FIG)
+
 # -----------------------------------------------------------------------------
 # Inequality helpers: Lorenz curve and Gini coefficent 
 # -----------------------------------------------------------------------------
@@ -176,7 +180,7 @@ else
                       ylabel="Cumulative wealth share",
                       title="Lorenz Curve — Wealth Distribution")
     plot!(plt_lorenz, [0, 1], [0, 1], linestyle=:dash, color=:gray, label="Perfect equality")
-    savefig(plt_lorenz, "fig_lorenz.png")
+    savefig(plt_lorenz, joinpath(FIG, "fig_lorenz.png"))
 end
 
 # Plot: wealth density as a UNIFORM-BIN histogram.
@@ -199,7 +203,7 @@ end
 plt_wdist = bar(centers, hist, color=:steelblue, alpha=0.8, legend=false,
                 xlabel="Wealth a", ylabel="Share of households",
                 title="Stationary Wealth Distribution")
-savefig(plt_wdist, "fig_wealth_dist.png")
+savefig(plt_wdist, joinpath(FIG, "fig_wealth_dist.png"))
 println("  → saved: fig_lorenz.png, fig_wealth_dist.png")
 
 
@@ -224,7 +228,7 @@ for j in 1:n_e
     plot!(plt_sav, a_vec, a_vec[result.g_idx[:, j]], label=e_lbls[j], color=clrs[j])
 end
 plot!(plt_sav, a_vec, a_vec, linestyle=:dash, color=:black, label="45°", linewidth=0.8)
-savefig(plt_sav, "fig_policy_savings.png")
+savefig(plt_sav, joinpath(FIG, "fig_policy_savings.png"))
 
 # Consumption policy: consumption c vs current assets a
 plt_cons = plot(xlabel="Current assets a", ylabel="Consumption c",
@@ -232,7 +236,7 @@ plt_cons = plot(xlabel="Current assets a", ylabel="Consumption c",
 for j in 1:n_e
     plot!(plt_cons, a_vec, result.c[:, j], label=e_lbls[j], color=clrs[j])
 end
-savefig(plt_cons, "fig_policy_consumption.png")
+savefig(plt_cons, joinpath(FIG, "fig_policy_consumption.png"))
 println("  → saved: fig_policy_savings.png, fig_policy_consumption.png")
 
 
@@ -372,7 +376,7 @@ plot!(plt_cs1, β_vals, rpct(β_st); xlabel="β", title="r* vs β", subplot=1, l
 plot!(plt_cs1, σ_vals, rpct(σ_st); xlabel="σ", title="r* vs σ", subplot=2, line_opts...)
 plot!(plt_cs1, ρ_vals, rpct(ρ_st); xlabel="ρ", title="r* vs ρ", subplot=3, line_opts...)
 plot!(plt_cs1, γ_vals, rpct(γ_st); xlabel="γ", title="r* vs γ", subplot=4, line_opts...)
-savefig(plt_cs1, "fig_comparative_statics.png")
+savefig(plt_cs1, joinpath(FIG, "fig_comparative_statics.png"))
 println("  → saved: fig_comparative_statics.png")
 
 # K* and Gini vs σ: more uncertainty raises both capital and inequality
@@ -383,7 +387,7 @@ plt_kg = plot(
          xlabel="σ (income std)", ylabel="Gini", title="Inequality vs Uncertainty", legend=false),
     layout=(1, 2), size=(760, 340)
 )
-savefig(plt_kg, "fig_uncertainty_tradeoff.png")
+savefig(plt_kg, joinpath(FIG, "fig_uncertainty_tradeoff.png"))
 println("  → saved: fig_uncertainty_tradeoff.png")
 
 # ── 6e–6h. Production, constraint, and grid parameters ───────────────────────
@@ -406,7 +410,7 @@ plot!(plt_cs2, α_vals, rpct(α_st);          xlabel="α (capital share)",  titl
 plot!(plt_cs2, δ_vals, rpct(δ_st);          xlabel="δ (depreciation)",   title="r* vs δ", subplot=2, line_opts...)
 plot!(plt_cs2, amin_vals, rpct(amin_st);    xlabel="a_min (borrow limit)", title="r* vs Borrowing Limit", subplot=3, line_opts...)
 plot!(plt_cs2, Float64.(ne_vals), rpct(ne_st); xlabel="n_e (income states)", title="r* vs n_e  (convergence)", subplot=4, line_opts...)
-savefig(plt_cs2, "fig_comparative_statics2.png")
+savefig(plt_cs2, joinpath(FIG, "fig_comparative_statics2.png"))
 println("  → saved: fig_comparative_statics2.png")
 
 # Borrowing constraint, the key incomplete-markets result:
@@ -416,7 +420,7 @@ plt_amin = plot(layout=(1, 3), size=(960, 320))
 plot!(plt_amin, amin_vals, rpct(amin_st);          ylabel="r* (%)", title="r* vs Borrowing Limit", color=:steelblue, subplot=1, amin_opts...)
 plot!(plt_amin, amin_vals, [s.K for s in amin_st]; ylabel="K*",     title="K* vs Borrowing Limit", color=:darkgreen, subplot=2, amin_opts...)
 plot!(plt_amin, amin_vals, [s.G for s in amin_st]; ylabel="Gini",   title="Gini vs Borrowing Limit", color=:darkorange, subplot=3, amin_opts...)
-savefig(plt_amin, "fig_borrowing_constraint.png")
+savefig(plt_amin, joinpath(FIG, "fig_borrowing_constraint.png"))
 println("  → saved: fig_borrowing_constraint.png")
 
 
@@ -502,7 +506,7 @@ plot!(plt_erg, 1:T_erg, log10.(d_rich .+ 1e-16),
       label="Start: all rich  (a_max, e_max)", linewidth=2, color=:navy)
 plot!(plt_erg, 1:T_erg, log10.(d_mid .+ 1e-16),
       label="Start: midpoint", linewidth=2, color=:darkgreen, linestyle=:dash)
-savefig(plt_erg, "fig_ergodicity.png")
+savefig(plt_erg, joinpath(FIG, "fig_ergodicity.png"))
 
 println("\n  Total-variation distance TV(μ_t, μ*):")
 println("  ", rpad("t", 8), " ", lpad("poor start", 12), " ", lpad("rich start", 12))

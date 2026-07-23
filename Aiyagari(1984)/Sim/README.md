@@ -13,8 +13,8 @@ capital market clears.
 installation and no server.
 
 The page needs an internet connection only to load the plotting library
-(Plotly, from a CDN). All of the economics — the value-function iteration, the
-stationary distribution, and the search for the market-clearing interest rate —
+(Plotly, from a CDN). All of the economics (the value-function iteration, the
+stationary distribution, and the search for the market-clearing interest rate)
 is computed locally on your machine.
 
 ## What you can do
