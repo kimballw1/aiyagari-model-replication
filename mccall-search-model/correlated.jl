@@ -3,7 +3,7 @@
 # =============================================================================
 #
 # McCall (1970) assumes offers are i.i.d.: today's draw says nothing about
-# tomorrow's. Empirically, labor-market luck is persistent — a worker who can
+# tomorrow's. Empirically, labor-market luck is persistent: a worker who can
 # command a high offer this period tends to command one next period too. Here the
 # log offer follows an AR(1) (discretized in `offers.jl::persistent_offers`), so
 # the worker's *state* is the current offer itself.

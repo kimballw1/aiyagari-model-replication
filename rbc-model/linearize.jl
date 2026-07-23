@@ -2,11 +2,11 @@
 # linearize.jl — first-order (log-linear) solution via Klein's (2000) QZ method
 # =============================================================================
 #
-# The workhorse RBC solver. We log-linearize the equilibrium conditions around
-# the deterministic steady state and solve the resulting linear rational-
+# The main RBC solver. Log-linearize the equilibrium conditions around the
+# deterministic steady state and solve the resulting linear rational-
 # expectations system with the generalized Schur (QZ) decomposition. This is the
-# standard fast method behind Dynare-style toolkits, and — unlike value-function
-# iteration — it handles endogenous labor with no extra cost and delivers clean
+# standard fast method behind Dynare-style toolkits, and unlike value-function
+# iteration it handles endogenous labor with no extra cost and delivers clean
 # impulse responses and second moments.
 #
 # Variables are log-deviations from steady state: k̂, ẑ (states) and ĉ (the jump),

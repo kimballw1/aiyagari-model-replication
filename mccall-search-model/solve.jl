@@ -24,8 +24,8 @@ end
 """
     solve_mccall(p::McCallModel)
 
-Solve the McCall model with job separation by iterating the **continuation
-value of unemployment** `U` to its fixed point in contrast to iterating the
+Solve the McCall model with job separation by iterating the continuation
+value of unemployment `U` to its fixed point, rather than iterating the
 whole value function over the wage grid (see `solve_vfi`).
 
 The two Bellman objects are
@@ -38,7 +38,7 @@ Given a guess for the scalar `U`, the employment value has the closed form
     V_e(w) = [u(w) + β·α·U] / (1 − β(1−α)),
 
 so each iteration is one cheap sweep over the offer grid. The worker accepts iff
-`V_e(w) ≥ U`; because `V_e` is increasing in `w` this is a **reservation-wage**
+`V_e(w) ≥ U`; because `V_e` is increasing in `w` this is a reservation-wage
 rule, and setting `V_e(w̄) = U` gives the clean closed form
 
     u(w̄) = (1 − β)·U                  (independent of the separation rate α).
@@ -81,8 +81,9 @@ end
 """
     solve_vfi(p::McCallModel) -> NamedTuple
 
-Pedagogical alternative to `solve_mccall`: iterate the full value function
-`V(w) = max{ V_e(w), U }` over the entire offer grid until convergence
+Slower alternative to `solve_mccall`, kept as a cross-check (§1 of analyze.jl):
+iterate the full value function `V(w) = max{ V_e(w), U }` over the entire offer
+grid until it converges.
 """
 function solve_vfi(p::McCallModel)
     (; β, γ, c, α, tol, max_iter) = p

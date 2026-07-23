@@ -18,13 +18,13 @@ Labor supply is governed by `labor`:
 - `:inelastic`   — `n ≡ 1` (the undergraduate-lecture / textbook growth model).
 - `:divisible`   — interior labor with Frisch elasticity `ν` (King–Plosser–Rebelo).
 - `:indivisible` — Hansen (1985): linear labor disutility (`ν → ∞`), which makes
-  the *aggregate* labor-supply elasticity effectively infinite and is the key
+  the aggregate labor-supply elasticity effectively infinite and is the key
   refinement that lets the model match hours volatility.
 
-Defaults are the standard **quarterly** RBC calibration (Hansen 1985 / King–
+Defaults are the standard quarterly RBC calibration (Hansen 1985 / King–
 Plosser–Rebelo): `β = 0.99` (≈4%/yr real rate), `α = 0.36`, `δ = 0.025`,
-`ρ = 0.95`, `σ_ε = 0.007`, steady-state hours `n* = 1/3`. `χ` is *not* a free
-parameter — it is pinned down by the `n* = 1/3` target in `steadystate.jl`.
+`ρ = 0.95`, `σ_ε = 0.007`, steady-state hours `n* = 1/3`. `χ` is not a free
+parameter; it is pinned down by the `n* = 1/3` target in `steadystate.jl`.
 """
 @kwdef struct RBCModel
     β::Float64   = 0.99          # discount factor (quarterly)

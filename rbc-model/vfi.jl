@@ -2,11 +2,11 @@
 # vfi.jl — exact nonlinear solution by value-function iteration (benchmark)
 # =============================================================================
 #
-# The "ground-truth" solver: value-function iteration with linear interpolation
+# The ground-truth solver: value-function iteration with linear interpolation
 # of the continuation value, for the inelastic-labor stochastic growth model
 # (n ≡ 1). It is far slower than the log-linear solution in `linearize.jl`, but
-# it is *exact* (no local approximation), so analyze.jl §3 uses it to validate
-# the linearization — the two policy functions should coincide near the steady
+# it is exact (no local approximation), so analyze.jl §3 uses it to validate
+# the linearization: the two policy functions should coincide near the steady
 # state and fan apart only far from it.
 
 using Interpolations

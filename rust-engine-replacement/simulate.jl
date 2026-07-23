@@ -11,8 +11,8 @@ using Distributions: Categorical
 Simulate a single bus for `T` periods under the replacement policy `P_rep`.
 Starting from a new engine (state 1), each period: draw the replacement decision
 `d_t` as a Bernoulli with success probability `P_rep[x_t]`, then advance mileage
-by `Δ ∈ {0,1,2}` drawn from `θ₃` — from the reset state if it replaced, from the
-current state otherwise. The mileage path is the famous **sawtooth**: a slow
+by `Δ ∈ {0,1,2}` drawn from `θ₃`, from the reset state if it replaced and from
+the current state otherwise. The mileage path is the famous sawtooth: a slow
 climb punctuated by sharp drops at replacement.
 
 # Returns

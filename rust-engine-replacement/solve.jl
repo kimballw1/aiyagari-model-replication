@@ -10,7 +10,7 @@ const γ_euler = Base.MathConstants.eulergamma   # ≈ 0.5772, Euler–Mascheron
     bellman_update(m, V, F0, F1) -> V_new
 
 One application of Rust's Bellman operator. With Type-I EV shocks the expected
-maximum is the **log-sum-exp** of the choice-specific values, so
+maximum is the log-sum-exp of the choice-specific values, so
 
     v_keep    = −c   + β·F0·V
     v_replace = −RC  + β·F1·V
@@ -50,8 +50,8 @@ end
     solve_rust(m::RustModel) -> NamedTuple
 
 Solve the model end to end: build transitions, iterate the Bellman equation, and
-return the value function, the choice-specific values, and the **conditional
-choice probability** of replacement at each mileage (the logit formula),
+return the value function, the choice-specific values, and the conditional
+choice probability of replacement at each mileage (the logit formula),
 
     P(replace | x) = 1 / (1 + exp(v_keep(x) − v_replace(x))).
 

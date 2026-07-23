@@ -64,7 +64,7 @@ end
     nfxp_negloglik([RC, θ₁], x, d, β, θ₃, S) -> Float64
 
 Negative choice log-likelihood at candidate `(RC, θ₁)`: build the trial model,
-**solve the entire DP** (the nested fixed point), read off the model CCPs, and
+solve the entire DP (the nested fixed point), read off the model CCPs, and
 score the data. Returns a large penalty for infeasible negative parameters.
 """
 function nfxp_negloglik(params, x, d, β, θ₃, S)

@@ -4,7 +4,7 @@
 #
 # The reservation-wage policy turns the model into a simple two-state Markov
 # process over (unemployed, employed). Simulating it lets us read off objects the
-# closed-form solution only predicts in expectation: the *distribution* of
+# closed-form solution only predicts in expectation: the distribution of
 # unemployment-spell lengths (geometric with the job-finding rate `f`), the
 # realized distribution of accepted wages (the offer distribution truncated at
 # `w̄`), and the time-average unemployment rate (which should match the
@@ -14,7 +14,7 @@ using Statistics
 using Random
 
 # Draw an index from the pmf `cdf` (a precomputed cumulative sum of probabilities)
-# by inverse-CDF sampling — base-Julia replacement for StatsBase.sample.
+# by inverse-CDF sampling (base-Julia replacement for StatsBase.sample).
 @inline draw_idx(cdf, u) = searchsortedfirst(cdf, u)
 
 """

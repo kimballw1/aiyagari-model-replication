@@ -7,11 +7,11 @@
 
 Construct the two `S × S` mileage transition matrices.
 
-- `F0` (**keep**): from state `i`, mileage advances to `min(i + Δ, S)` with
-  `Δ ∈ {0,1,2}` drawn from `θ₃`. A banded matrix — mileage can only rise.
-- `F1` (**replace**): the engine resets to new, so the next state is
+- `F0` (keep): from state `i`, mileage advances to `min(i + Δ, S)` with
+  `Δ ∈ {0,1,2}` drawn from `θ₃`. A banded matrix, since mileage can only rise.
+- `F1` (replace): the engine resets to new, so the next state is
   `min(1 + Δ, S)` regardless of the current state. Every row of `F1` is
-  identical, which is the model's *renewal* structure: replacing erases the past.
+  identical, which is the model's renewal structure: replacing erases the past.
 
 At the top bin `S`, mileage is absorbed (capped).
 """
