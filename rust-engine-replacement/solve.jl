@@ -17,8 +17,7 @@ maximum is the **log-sum-exp** of the choice-specific values, so
     V(x)      = log( exp(v_keep) + exp(v_replace) )
 
 (The additive Euler constant `γ` is a level shift that cancels out of all choice
-probabilities, so we drop it from `V` — and keep the Hotz–Miller inversion in
-`estimate.jl` consistent with that convention.) The `vmax` subtraction is the
+probabilities, so we drop it from `V`.) The `vmax` subtraction is the
 standard log-sum-exp guard against overflow.
 """
 function bellman_update(m::RustModel, V, F0, F1)

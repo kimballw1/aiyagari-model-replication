@@ -8,7 +8,7 @@ The borrowing constraint can be either the Aiyagari **natural borrowing limit** 
 
 ## The economics: what Aiyagari is doing
 
-### The cast of characters
+### Variables
 
 The model has two players connected by one market:
 

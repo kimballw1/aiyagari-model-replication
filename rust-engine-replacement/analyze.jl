@@ -3,8 +3,8 @@
 # =============================================================================
 #
 # Run with:  julia analyze.jl   (includes main.jl, solves the baseline, then
-# works through §1–§8 and writes figures to graphs/). A full pass is ~90 s
-# (the Monte-Carlo estimation study in §7 dominates the time).
+# works through §1–§7 and writes figures to graphs/). A full pass is ~90 s
+# (the Monte-Carlo estimation study in §6 dominates the time).
 
 include("main.jl")
 
@@ -167,41 +167,22 @@ println("  ", rpad("Param", 8), rpad("true", 10), rpad("NFXP est", 14), "std err
 println("  ", rpad("RC", 8), rpad(m.RC, 10), rpad(round(nfxp.RC, digits = 3), 14), round(nfxp.se_RC, digits = 3))
 println("  ", rpad("θ₁", 8), rpad(m.θ₁, 10), rpad(round(nfxp.θ₁, digits = 4), 14), round(nfxp.se_θ₁, digits = 4))
 
-
-# =============================================================================
-# §6  HOTZ–MILLER (CCP) ESTIMATION
-# =============================================================================
-# The two-step CCP estimator replaces the inner fixed point with a single linear
-# solve (the logit value inversion), given first-stage CCPs. Faster, but less
-# accurate here: the renewal structure means high-mileage states are essentially
-# never visited, so their CCPs are not data-identified.
-
-println("\n", "─"^64); println("  §6  HOTZ–MILLER (CCP) ESTIMATION"); println("─"^64)
-hm = estimate_hotz_miller(x_e, d_e, m.β, θ₃_hat, m.S)
-_, visits = fit_ccp_frequency(x_e, d_e, m.S)
-println("  ", rpad("states ever visited", 30), " ", count(>(0), visits), " / ", m.S,
-        "   (max = ", maximum(x_e), ")")
-println("  ", rpad("Param", 8), rpad("true", 10), rpad("NFXP", 12), "Hotz–Miller")
-println("  ", rpad("RC", 8), rpad(m.RC, 10), rpad(round(nfxp.RC, digits = 3), 12), round(hm.RC, digits = 3))
-println("  ", rpad("θ₁", 8), rpad(m.θ₁, 10), rpad(round(nfxp.θ₁, digits = 4), 12), round(hm.θ₁, digits = 4))
-
 sol_nfxp = solve_rust(RustModel(RC = nfxp.RC, θ₁ = nfxp.θ₁, θ₃ = θ₃_hat))
 plt_est = plot(x̄, sol.P, lw = 3, color = :black, label = "true CCP",
                xlabel = "mileage x", ylabel = "P(replace)", title = "Estimated vs True CCP", legend = :topleft)
 plot!(plt_est, x̄, sol_nfxp.P, lw = 2, ls = :dash, color = :crimson, label = "NFXP fit")
-plot!(plt_est, x̄, hm.P_rep_hat, lw = 2, ls = :dot, color = :seagreen, label = "Hotz–Miller 1st-stage CCP")
 savefig(plt_est, joinpath(FIG, "fig_estimation.png"))
 println("  → saved: fig_estimation.png")
 
 
 # =============================================================================
-# §7  MONTE-CARLO SAMPLING DISTRIBUTION
+# §6  MONTE-CARLO SAMPLING DISTRIBUTION
 # =============================================================================
 # Re-estimate on many independent panels to trace the finite-sample sampling
 # distribution of the NFXP estimates. The histograms should center on the truth,
 # and their spread should match the analytic standard errors from §5.
 
-println("\n", "─"^64); println("  §7  MONTE-CARLO SAMPLING DISTRIBUTION"); println("─"^64)
+println("\n", "─"^64); println("  §6  MONTE-CARLO SAMPLING DISTRIBUTION"); println("─"^64)
 R, T_mc = 40, 8_000
 RC_draws = Float64[]; θ₁_draws = Float64[]
 for r in 1:R
@@ -229,14 +210,14 @@ println("  → saved: fig_monte_carlo.png")
 
 
 # =============================================================================
-# §8  COUNTERFACTUAL — A REPLACEMENT SUBSIDY
+# §7  COUNTERFACTUAL — A REPLACEMENT SUBSIDY
 # =============================================================================
 # The payoff to structural estimation: counterfactuals. Lowering the replacement
 # cost RC (e.g. a government subsidy on new engines) makes Zurcher replace sooner
 # and more often. A reduced-form hazard fit to the old data could not predict
 # this — agents re-optimize, which only the structural model captures.
 
-println("\n", "─"^64); println("  §8  COUNTERFACTUAL — REPLACEMENT SUBSIDY"); println("─"^64)
+println("\n", "─"^64); println("  §7  COUNTERFACTUAL — REPLACEMENT SUBSIDY"); println("─"^64)
 RC_cf = range(3.0, 12.0, length = 19)
 rates = Float64[]; lives = Float64[]
 for RC in RC_cf
@@ -268,7 +249,7 @@ for (f, d) in [
     ("fig_ev_results.png",         "log-sum-exp & logit Monte-Carlo checks"),
     ("fig_comparative_statics.png","hazard vs RC and θ₁"),
     ("fig_simulation.png",         "sawtooth path & stationary mileage dist"),
-    ("fig_estimation.png",         "estimated vs true CCP (NFXP, Hotz–Miller)"),
+    ("fig_estimation.png",         "estimated vs true CCP (NFXP fit)"),
     ("fig_monte_carlo.png",        "sampling distribution of RĈ, θ̂₁"),
     ("fig_counterfactual.png",     "replacement rate vs a cost subsidy"),
 ]
