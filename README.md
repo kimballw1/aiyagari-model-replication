@@ -12,9 +12,10 @@ Everything is written in Julia. Each model is self-contained, and its README exp
 | [McCall job search](mccall-search-model) | McCall (1970), "Economics of Information and Job Search" | The reservation wage computed two independent ways, plus separations, risk aversion, persistent offers, and simulated unemployment durations |
 | [Rust engine replacement](rust-engine-replacement) | Rust (1987), "Optimal Replacement of GMC Bus Engines" | Solves and estimates the model: nested fixed point (NFXP) and Hotz–Miller CCP estimators, a Monte-Carlo study, and a counterfactual policy experiment |
 | [Real business cycle](rbc-model) | Kydland & Prescott (1982), "Time to Build and Aggregate Fluctuations" | Value function iteration benchmark and Klein log-linearization, calibrated to quarterly U.S. data with an HP-filtered moment scorecard |
-| [Sovereign default](sovereign-default-model) | Eaton & Gersovitz (1981); Arellano (2008) | Endogenous bond price schedule, default sets, and the business-cycle facts of emerging-market debt crises |
+
 
 ## Planned additions
 
+- Sovereign default
 - New Keynesian model
 - HANK and RANK
