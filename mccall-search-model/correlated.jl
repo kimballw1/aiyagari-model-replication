@@ -14,9 +14,6 @@
 #     V_u(i) = max{ u(w_i)/(1−β),  u(c) + β·Σ_j P[i,j]·V_u(j) }
 #                    └ accept ┘     └────── reject, redraw from P[i,·] ──────┘
 #
-# Reservation wage is still a threshold, but now there is a *different* cutoff for
-# each persistence level: a high current offer is attractive both for its wage and
-# because it signals high future offers, which *raises* the reject value too.
 
 using LinearAlgebra
 

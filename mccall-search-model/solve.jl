@@ -22,11 +22,10 @@ function flow_u_inv(v, γ)
 end
 
 """
-    solve_mccall(p::McCallModel) -> NamedTuple
+    solve_mccall(p::McCallModel)
 
 Solve the McCall model with job separation by iterating the **continuation
-value of unemployment** `U` to its fixed point — the fast, standard research
-method (a scalar contraction with modulus `β`), in contrast to iterating the
+value of unemployment** `U` to its fixed point in contrast to iterating the
 whole value function over the wage grid (see `solve_vfi`).
 
 The two Bellman objects are
@@ -82,11 +81,8 @@ end
 """
     solve_vfi(p::McCallModel) -> NamedTuple
 
-Pedagogical alternative to `solve_mccall`: iterate the **full value function**
-`V(w) = max{ V_e(w), U }` over the entire offer grid until convergence, exactly
-as in the undergraduate lecture. Slower (it updates `n_w` numbers each step
-instead of one) but converges to the same `U`, `w_res`, and policy — analyze.jl
-§1 uses it as an independent cross-check on `solve_mccall`.
+Pedagogical alternative to `solve_mccall`: iterate the full value function
+`V(w) = max{ V_e(w), U }` over the entire offer grid until convergence
 """
 function solve_vfi(p::McCallModel)
     (; β, γ, c, α, tol, max_iter) = p

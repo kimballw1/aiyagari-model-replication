@@ -11,14 +11,6 @@ using QuantEcon: tauchen
 Discretize the i.i.d. log-normal wage-offer distribution `ln w ~ N(μ, σ²)` onto
 `n_w` points.
 
-The grid spans `μ ± m·σ` *in logs* (so it is dense in levels near the bottom and
-stretches out in the right tail, matching the skew of a real wage distribution).
-Mass is assigned by the **CDF-interval (Tauchen-style)** rule: `pw[i]` is the
-log-normal probability of the cell whose midpoints bracket `w[i]`, and the two
-endpoints absorb the entire remaining tail. Unlike evaluating the density
-pointwise, this keeps the mean from leaking out through the truncated right tail,
-so the discretized `E[w]` matches the true `exp(μ + σ²/2)` closely.
-
 # Returns
 - `w::Vector{Float64}`  — wage levels (length `n_w`), increasing.
 - `pw::Vector{Float64}` — offer probabilities, summing to 1.
