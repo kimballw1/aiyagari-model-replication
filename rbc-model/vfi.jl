@@ -2,10 +2,8 @@
 # vfi.jl — value-function iteration
 # =============================================================================
 #
-# The solver: value-function iteration with linear interpolation of the
+# value-function iteration with linear interpolation of the
 # continuation value, choosing k' by Brent's method at every (k, z) point.
-# Exact (no local approximation around the steady state) — just slow, because
-# every grid point is a one-dimensional maximization every iteration.
 
 using Interpolations
 using Optim

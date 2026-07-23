@@ -6,9 +6,7 @@
     rouwenhorst(N, ρ, σ_ε) -> (z_grid, P)
 
 Discretize `log zₜ = ρ·log zₜ₋₁ + εₜ`, `εₜ ~ N(0, σ_ε²)`, into an `N`-state
-Markov chain by the Rouwenhorst (1995) method. Rouwenhorst is the discretization
-of choice for RBC because it remains accurate as `ρ → 1` (highly persistent
-shocks), where Tauchen's method degrades.
+Markov chain by the Rouwenhorst method.
 
 # Returns
 - `z_grid::Vector{Float64}` — log-TFP nodes (exponentiate for levels).
